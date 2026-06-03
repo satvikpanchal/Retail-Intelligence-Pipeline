@@ -1,0 +1,19 @@
+services:
+  localstack:
+    container_name: localstack
+    image: localstack/localstack:latest
+    ports:
+      - "4566:4566"            # single edge port for all AWS services
+    environment:
+      - LOCALSTACK_AUTH_TOKEN=${LOCALSTACK_AUTH_TOKEN}  # read from .env (gitignored)
+      - SERVICES=s3            # only S3 for now; add more later (e.g. s3,rds)
+      - DEBUG=0
+      - AWS_DEFAULT_REGION=us-east-1
+    volumes:
+      - "./.localstack:/var/lib/localstack"          # persist state across restarts
+      - "/var/run/docker.sock:/var/run/docker.sock"  # needed by some LocalStack features
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
