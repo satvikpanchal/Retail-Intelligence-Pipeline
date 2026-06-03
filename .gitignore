@@ -2,7 +2,7 @@
 .localstack/
 
 # Data files (too large for git — see README for download instructions)
-data/raw/
+data/
 
 # Python
 __pycache__/
