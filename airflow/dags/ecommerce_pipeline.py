@@ -41,26 +41,34 @@ def ecommerce_pipeline():
     upload_bronze = BashOperator(
         task_id="upload_bronze",
         bash_command=(
-            f"{PYTHON} {PROJECT_ROOT}/src/ingestion/upload_bronze.py"
-        ),
-        env={
-            "AIRFLOW_HOME": str(PROJECT_ROOT / "airflow"),
-        },
-        append_env=True,   # keep the existing system env vars
-    )
-
-    spark_silver = BashOperator(
-        task_id="spark_silver",
-        bash_command=(
-            f"export JAVA_HOME={JAVA_HOME} && "
-            f"export PATH={JAVA_HOME}/bin:$PATH && "
-            f"{PYTHON} {PROJECT_ROOT}/src/spark/silver.py"
+            f'"{PYTHON}" "{PROJECT_ROOT}/src/ingestion/upload_bronze.py"'
         ),
         env={
             "AIRFLOW_HOME": str(PROJECT_ROOT / "airflow"),
         },
         append_env=True,
-        execution_timeout=timedelta(minutes=30),  # Spark can take a while
+    )
+
+    spark_silver = BashOperator(
+        task_id="spark_silver",
+        bash_command=(
+            f'export JAVA_HOME="{JAVA_HOME}" && '
+            f'export PATH="{JAVA_HOME}/bin":$PATH && '
+            f'export SPARK_HOME="{PROJECT_ROOT}/.venv/lib/python3.13/site-packages/pyspark" && '
+            f'export SPARK_CONF_DIR="{PROJECT_ROOT}/conf" && '
+            f'export PYSPARK_PYTHON="{PYTHON}" && '
+            f'export PYSPARK_DRIVER_PYTHON="{PYTHON}" && '
+            f'unset HADOOP_CONF_DIR && '
+            f'unset HADOOP_HOME && '
+            f'unset YARN_CONF_DIR && '
+            f'"{PYTHON}" "{PROJECT_ROOT}/src/spark/silver.py"'
+        ),
+        env={
+            "AIRFLOW_HOME": str(PROJECT_ROOT / "airflow"),
+            "PATH": f"{JAVA_HOME}/bin:/usr/bin:/bin",
+        },
+        append_env=False,
+        execution_timeout=timedelta(minutes=30),
     )
 
     # Define order: bronze must finish before silver starts

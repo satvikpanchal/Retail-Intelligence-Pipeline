@@ -28,7 +28,14 @@ def get_spark() -> SparkSession:
         .config("spark.hadoop.fs.s3a.secret.key", os.getenv("AWS_SECRET_ACCESS_KEY", "test"))
         .config("spark.hadoop.fs.s3a.path.style.access", "true")
         .config("spark.hadoop.fs.s3a.impl", "org.apache.hadoop.fs.s3a.S3AFileSystem")
-        .config("spark.jars.packages", "org.apache.hadoop:hadoop-aws:3.3.4,com.amazonaws:aws-java-sdk-bundle:1.12.262")
+        .config("spark.jars.packages", "org.apache.hadoop:hadoop-aws:3.4.1,com.amazonaws:aws-java-sdk-bundle:1.12.367")
+        # Force SDK v1 credentials provider (matches hadoop-aws 3.4.x)
+        .config("spark.hadoop.fs.s3a.aws.credentials.provider",
+                "org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider")
+        # PySpark 4.x enables ANSI mode by default — invalid casts throw instead
+        # of returning NULL. Disable it so malformed CSV data (e.g. shifted columns
+        # in order_reviews) silently produces NULL rather than crashing the job.
+        .config("spark.sql.ansi.enabled", "false")
         .getOrCreate()
     )
 
