@@ -13,5 +13,11 @@ venv/
 # Env / secrets
 .env
 
+# Airflow runtime (local config, db, logs — not portable across machines)
+airflow/airflow.cfg
+airflow/airflow.db
+airflow/logs/
+airflow/standalone_admin_password.txt
+
 # OS
 .DS_Store
