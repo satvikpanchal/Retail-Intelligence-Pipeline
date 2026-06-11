@@ -8,6 +8,7 @@ data/
 # Python
 __pycache__/
 *.pyc
+*.pyo
 .venv/
 venv/
 
@@ -17,8 +18,17 @@ venv/
 # Airflow runtime (local config, db, logs — not portable across machines)
 airflow/airflow.cfg
 airflow/airflow.db
+airflow/airflow.db-shm
+airflow/airflow.db-wal
 airflow/logs/
 airflow/standalone_admin_password.txt
+airflow/simple_auth_manager_passwords.json.generated
+
+# Spark — machine-specific config overrides (Anaconda environment workaround)
+conf/
+
+# Ivy JAR cache (downloaded automatically on first run)
+.ivy*/
 
 # OS
 .DS_Store
